@@ -1,0 +1,121 @@
+[   {
+        "long": 139.7744,
+        "lat": 35.6839,
+        "city": "Tokyo",
+        "country": "JP"
+    },
+    {
+        "long": 77.2167,
+        "lat": 28.6667,
+        "city": "Delhi",
+        "country": "IN"
+    },
+    {
+        "long": 37.6178,
+        "lat": 55.7558,
+        "city": "Moscou",
+        "country": "RU"
+    },
+    {
+        "long": -46.6339,
+        "lat": -23.5504,
+        "city": "Sao Paulo",
+        "country": "BR"
+    },
+    {
+        "long": -0.1275,
+        "lat": 51.5072,
+        "city": "Londres",
+        "country": "GB"
+    },
+    {
+        "long": -73.9249,
+        "lat": 40.6943,
+        "city": "New York",
+        "country": "US"
+    },
+    {
+        "long": 121.597366,
+        "lat": 25.105497,
+        "city": "Taipei",
+        "country": "TW"
+    },
+    {
+        "long": 100.5167,
+        "lat": 13.75,
+        "city": "Bangkok",
+        "country": "TH"
+    },
+    {
+        "long": -58.3819,
+        "lat": -34.5997,
+        "city": "Buenos Aires",
+        "country": "AR"
+    },
+    {
+        "long": 30.5236,
+        "lat": 50.45,
+        "city": "Kyiv",
+        "country": "UA"
+    },
+    {
+        "long": -17.467686,
+        "lat": 14.716677,
+        "city": "Dakar",
+        "country": "SN"
+    },
+    {
+        "long": -13.712222,
+        "lat": 9.509167,
+        "city": "Conakry",
+        "country": "GN"
+    },
+    {
+        "long": -99.133209,
+        "lat": 19.432608,
+        "city": "Mexico City",
+        "country": "MX"
+    },
+    {
+        "long": -75.695000,
+        "lat": 45.424721,
+        "city": "Ottawa",
+        "country": "CA"
+    },
+    {
+        "long": 18.423300,
+        "lat": -33.918861,
+        "city": "Cape Town",
+        "country": "ZA"
+    },
+    {
+        "long": 174.777969,
+        "lat": 	-41.276825,
+        "city": "Wellington",
+        "country": "NZ"
+    },
+    {
+        "long": 151.209900,
+        "lat": -33.865143,
+        "city": "Sydney",
+        "country": "AU"
+    },
+    {
+        "long": 31.233334,
+        "lat": 30.033333,
+        "city": "Le Caire",
+        "country": "EG"
+    },
+    {
+        "long": -3.703790,
+        "lat": 40.416775,
+        "city": "Madrid",
+        "country": "ES"
+    },
+    {
+        "long": 10.757933,
+        "lat": 59.911491,
+        "city": "Oslo",
+        "country": "NO"
+    }
+]

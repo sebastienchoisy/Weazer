@@ -1,0 +1,19 @@
+{
+  "name": "TODO",
+  "version": "1.0.0",
+  "dependencies": {
+    "ajax": "0.0.4",
+    "body-parser": "^1.19.2",
+    "bufferutil": "^4.0.6",
+    "express": "^4.17.3",
+    "leaflet": "^1.7.1",
+    "node-fetch": "^3.2.3",
+    "utf-8-validate": "^5.0.9",
+    "ws": "^8.5.0",
+    "mongodb": "^4.4.1",
+    "mqtt": "^4.3.6"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weazer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="header">
+    <img src="assets/logo.png" alt="logo">
+    <span>Weazer</span>
+</div>
+<div id="navigation">
+    <button type="button" id="map_button" class="n-button"> Carte</button>
+    <button type="button" id="doc_button" class="n-button"> Documentation</button>
+    <button type="button" id="logs_button" class="n-button"> Logs</button>
+</div>
+<div id="container">
+    <div id="map_container">
+        <div id="map_display">
+            <div id="notice">
+                <span>Cliquez sur les marqueurs pour voir plus d'information (localisation, température, graphiques, etc..).</span>
+            </div>
+            <div id="map"></div>
+            <div id="loading-screen"><img src="assets/gif-spinner.svg" alt=""><span>Chargement des données</span></div>
+        </div>
+        <div id="marker_info" class="hidden">
+            <div id="container_info">
+                <div id="identity">
+                    <div class="info-display">
+                        <div class="w-25"><span>Nom: </span><span id="name"></span></div>
+                        <div class="w-25"><span>Adresse MAC: </span><span id="ident"></span></div>
+                        <div class="w-25"><span>Localisation: </span><span id="loc"></span></div>
+                    </div>
+                    <div class="info-display">
+                        <div class="w-25"><span>Dernière temperature: <br></span><span id="temp"></span></div>
+                        <div class="w-25"><span>Plus haute temperature: <br></span><span id="h-temp"></span></div>
+                        <div class="w-25"><span>Plus basse temperature: <br></span><span id="l-temp"></span></div>
+                    </div>
+                    <div class="info-display"></div>
+                </div>
+                <div id="pred" class="hidden">
+                    <div class="predDay"></div>
+                    <div class="predDay"></div>
+                    <div class="predDay"></div>
+                    <div class="predDay"></div>
+                    <div class="predDay"></div>
+                    <div class="predDay"></div>
+                    <div class="predDay"></div>
+                </div>
+            </div>
+            <div id="chart"></div>
+        </div>
+    </div>
+    <div id="documentation_container">
+        <h1>Documentation</h1>
+        <span id="github"> Code source: <a href="https://github.com/sebastienchoisy/Weazer" target="_blank"><b>https://github.com/sebastienchoisy/Weazer</b></a><br></span>
+        <span>L'inscription et la désinscription se font sous forme de requête HTTP POST pour que le mot secret ne soit pas divulguer publiquement sur un topic MQTT.</span>
+        <h3>Inscription</h3>
+        <span>Pour envoyer vos données à l'application avec votre ESP, il faut tout d'abord s'inscrire à l'aide d'une requête http <b>POST</b> vers l'API présente sur cette URL:
+        <b>https://www.iot906836m1.herokuapp.com/esp/registration</b>, avec un JSON sous cette forme : <br></span>
+        <img src="assets/registrationJson.jpg" alt="inscription-json">
+        <span><br>Les 3 champs sont obligatoires, le <b>mot secret</b> correspond à un mot que vous devrez nous transmettre si vous souhaitez vous désinscrire par la suite,
+        afin d'éviter que n'importe qui puisse vous désinscrire.</span>
+
+        <h3> Envoie de données</h3>
+        <span> Une fois, l'inscription réalisée (confirmation par réponse HTTP ou sur les logs), votre marker apparaitra que lorsque vous aurez envoyé votre température au serveur en utilisant cette fois, le topic <b>iot/M1Miage2022/temp</b>
+        présent sur le broker <b>test.mosquitto.org</b> et en les envoyant sous un Json de cette forme, de préférence, toutes les <b>5 minutes</b> : <br>
+      </span>
+        <img src="assets/tempJson.jpg" alt="temp-json">
+        <span><br>Les champs <b>user</b> et <b>light</b> sont optionnels, les autres sont tous obligatoires !</span>
+
+        <h3>Désinscription</h3>
+        <span>Si vous le souhaitez, vous avez la possibilité de vous désinscrire, une fois désinscrit, vous ne pourrez plus envoyer des données, cependant nous garderons
+            les anciennes données sauf si vous souhaitez que nous les effacions. L'url pour vous désinscrire avec une requête http <b>POST</b> : https://www.iot906836m1.herokuapp.com/esp/cancellation <br></span>
+        <img src="assets/cancellationJson.jpg" alt="temp-json">
+        <span><br>Tous les champs sont obligatoires, sauf eraseData, qui vous permet de supprimer les anciennes données à la désinscription, si eraseData est true, alors
+      les anciennes données seront supprimées et vous devrez refournir des données à une éventuelle réinscription</span>
+
+        <h3> Logs</h3>
+        <span> En cas de problèmes pour s'inscrire ou envoyer des données, il est possible de consulter les logs dans la partie prévue à cet effet.</span>
+    </div>
+    <div id="logs_container"></div>
+</div>
+<br>
+<script src="JS/infoContainer.js"></script>
+<script src="JS/dataSource.js"></script>
+<script src="JS/map.js"></script>
+<script src="JS/navListeners.js"></script>
+<script src="JS/tempChart.js"></script>
+<script src="JS/ui_lucioles.js"></script>
+
+
+</body>
+</html>
