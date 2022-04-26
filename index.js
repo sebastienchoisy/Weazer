@@ -298,14 +298,12 @@ async function v0() {
                         if (err) throw err;
                         sendMessageToClients(JSON.stringify({type: "refresh_esp_list"}));
                     });
-                    res.send("Inscription réussie: " + ident);
+                    res.send("Inscription réussie");
                     insertLogWithUser(frTime, name, ident, "info", "Inscription réussie")
                 } else {
                     res.send("Appareil déjà enregistré");
                     insertLogWithUser(frTime, name, ident, "error", "Appareil déjà enregistré")
                 }
-            } else {
-                res.send("Mauvais JSON: (Tentative d'inscription)")
             }
         });
         app.post('/esp/cancellation', async function (req, res) {
@@ -319,10 +317,7 @@ async function v0() {
                     if (document.secret == body.secret) {
                         await dbo.collection("esp").deleteOne({identification: ident});
                         sendMessageToClients(JSON.stringify({type: "remove_esp", ident: ident}));
-                        if (body.eraseData) {
-                            await dbo.collection("temp").deleteMany({identification: ident});
-                        }
-                        res.send("Désinscription réussie: " + ident);
+                        res.send("Désinscription réussie");
                     } else {
                         insertLogWithUser(frTime, user, ident, "error", "Impossible de désinscrire (<b> mauvais secret<b>)");
                         res.send("Impossible de se désinscrire ( mauvais secret )");
@@ -331,9 +326,6 @@ async function v0() {
                     insertLogWithUser(frTime, user, ident, "error", "Impossible de désinscrire (<b> esp inexistant<b>)");
                     res.send("Impossible de se désinscrire ( esp inexistant )");
                 }
-            } else {
-                insertErrorLogWithoutUser(frTime, "Impossible de désinscrire (<b> mauvais JSON<b>)")
-                res.send("Impossible de se désinscrire ( mauvais JSON )");
             }
         });
 

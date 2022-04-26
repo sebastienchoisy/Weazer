@@ -11,6 +11,7 @@ let ws = new WebSocket(HOST);
 
 function init() {
     new NavListeners();
+    new Modal();
     let node_url = "https://iot906836m1.herokuapp.com";
     let ident_list = [];
     let esp_list = [];

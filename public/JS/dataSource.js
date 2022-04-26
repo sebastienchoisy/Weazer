@@ -80,7 +80,7 @@ class dataSource {
 
     setUpMarker() { // On crée et on place le marker
         L.Marker.prototype.options.icon = L.icon({
-            iconUrl: "./assets/icon-marker.png",
+            iconUrl: this.type == "esp"? "./assets/esp-icon-marker.png" : "./assets/api-icon-marker.png",
             iconSize: [35, 35],
             popupAnchor: [0, -15]
         });

@@ -38,15 +38,11 @@ String MQTT_SERVER = "test.mosquitto.org";
 int MQTT_PORT =  8883; // for TLS cf https://test.mosquitto.org/
 
 //==== MQTT Credentials =========
-#if 0
-char *mqtt_id     = "deathstar";
-char *mqtt_login  = "darkvador";
-char *mqtt_passwd = "6poD2R2dx";
-#else
-char *mqtt_id     = "deathstar";
+
+char *mqtt_id     = "seb";
 char *mqtt_login  = NULL;
 char *mqtt_passwd = NULL;
-#endif
+
 
 //==== MQTT TOPICS ==============
 #define TOPIC_TEMP "iot/M1Miage2022/temp"
@@ -134,11 +130,6 @@ const char* ESP_key= \
 
 
 
-
-
-//==== ESP is MQTT Client =======
-//WiFiClient espClient;              // Wifi
-//PubSubClient client(espClient);
 WiFiClientSecure secureClient;     // Avec TLS !!!
 PubSubClient client(secureClient); // MQTT client
 
@@ -159,38 +150,15 @@ void mqtt_pubcallback(char* topic,
   Serial.println(topic);
   String messageTemp ;
   int http_response = 0;
-  if(String(topic) == TOPIC_MANAGEMENT) {
-    for(int i = 0 ; i < length ; i++) {
+  for(int i = 0 ; i < length ; i++) {
     messageTemp += (char) message[i];
-    }
-    if(messageTemp == "registration"){
-       Serial.println("Demande d'inscription");
-       createJsonRegistration();
-       http.begin("https://iot906836m1.herokuapp.com/esp/registration");
-       http.addHeader("Content-Type", "application/json");
-       http_response = http.POST(jpayload);
-       if(http_response>0){
-        Serial.println(http.getString());
-       }
-       http.end();
-    } else if(messageTemp == "cancellation"){
-      isPublishing = false;
-      createJsonCancellation(true);
-      Serial.println("Demande de désinscription");
-      http.begin("https://iot906836m1.herokuapp.com/esp/cancellation");
-      http.addHeader("Content-Type", "application/json");
-      http_response = http.POST(jpayload);
-       if(http_response>0){
-        Serial.println(http.getString());
-       }
-      http.end();
-    } else if(messageTemp == "start"){
-      isPublishing = true;
-      Serial.println("Demarrage des publications");
-    } else if(messageTemp == "stop"){
-      isPublishing = false;
-       Serial.println("Arrêt des publications");
-    }
+  }
+  if(messageTemp == "start"){
+    isPublishing = true;
+    Serial.println("Demarrage des publications");
+  } else if(messageTemp == "stop"){
+    isPublishing = false;
+    Serial.println("Arrêt des publications");
   }
 }
 
@@ -227,7 +195,6 @@ void mqtt_connect() {
   /*
      Subscribe to a MQTT topic
   */
-  #if 1
   // For TLS
   const char* cacrt= readFileFromSPIFFS("/ca.crt").c_str();
   secureClient.setCACert(CA_cert);
@@ -235,7 +202,7 @@ void mqtt_connect() {
   secureClient.setCertificate(ESP_cert);
   const char* clkey = readFileFromSPIFFS("/client.key").c_str();
   secureClient.setPrivateKey(ESP_key);
-  #endif
+
   
   while (!client.connected()) { // Loop until we're reconnected
     Serial.print("Attempting MQTT connection...");
@@ -260,7 +227,6 @@ void mqtt_connect() {
 void mqtt_subscribe() {
    if (!client.connected()) { 
       mqtt_connect();
-      client.subscribe(TOPIC_TEMP);
       client.subscribe(TOPIC_MANAGEMENT);
    }
 }

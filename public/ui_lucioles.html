@@ -21,6 +21,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap" rel="stylesheet">
 </head>
 <body>
+<div id="modal">
+    <div id="modal-content">
+        <span class="close">&times;</span>
+        <h1> Inscription/Désinscription </h1>
+        <div id="sub_form">
+            <div id="input_group">
+                <div class="input">
+                    <label for="utilisateur"> Utilisateur</label>
+                    <input type="text" id="utilisateur">
+                    <span id="utilisateur-error" class="red-text"></span>
+                </div>
+                <div class="input">
+                    <label for="identifiant"> Identifiant</label>
+                    <input type="text" id="identifiant">
+                    <span id="identifiant-error" class="red-text"></span>
+                </div>
+                <div class="input">
+                    <label for="mot_secret"> Mot secret</label>
+                    <input type="text" id="mot_secret">
+                    <span id="secret-error" class="red-text input-error"></span>
+                </div>
+            </div>
+            <div id="info_message"></div>
+            <div id="bottom_buttons">
+                <button type="button" id="subscribe_button" class="n-button"> S'inscrire</button>
+                <button type="button" id="unsub_button" class="n-button"> Se désinscrire</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="header">
     <img src="assets/logo.png" alt="logo">
     <span>Weazer</span>
@@ -28,6 +59,7 @@
 <div id="navigation">
     <button type="button" id="map_button" class="n-button"> Carte</button>
     <button type="button" id="doc_button" class="n-button"> Documentation</button>
+    <button type="button" id="sub_button" class="n-button"> Inscription/Désinscription</button>
     <button type="button" id="logs_button" class="n-button"> Logs</button>
 </div>
 <div id="container">
@@ -103,6 +135,7 @@
 <script src="JS/map.js"></script>
 <script src="JS/navListeners.js"></script>
 <script src="JS/tempChart.js"></script>
+<script src="JS/modal.js"></script>
 <script src="JS/ui_lucioles.js"></script>
 
 
