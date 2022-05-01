@@ -67,6 +67,7 @@ async function v0() {
     const mongoName = "lucioles"         //Nom de la base
     const mongoUri = process.env.mongodb;
 
+
     //Now that we have our URI, we can create an instance of MongoClient.
     const mg_client = new MongoClient(mongoUri,
         {useNewUrlParser: true, useUnifiedTopology: true});
@@ -85,37 +86,58 @@ async function v0() {
 
         // On rempli notre collection API avec les données de l'api OpenWeather
         let data = require("./public/assets/api-locations.json");
+
+        dbo.collection("api-sources").countDocuments().then((res)=> {
+            if(!res) {
+                data.forEach((source) => {
+                    dbo.collection("api-sources").insertOne(source);
+                })
+            }
+        })
+
         let apikey = process.env.openweather_key;
+
 
         async function getDataFromAPI(lat, long) {
             let url = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + long + "&exclude=hourly,minutely,alerts&units=metric&appid=" + apikey;
             return await fetch(url).then((response) => response.json());
         }
 
+        function getDataForSpecificAPI(lat,long,city,country){
+            getDataFromAPI(lat, long).then((res) => {
+                let apiData = res;
+                let pred_entry = {
+                    city: city,
+                    pred: apiData.daily
+                }
+                let api_entry = {
+                    date: apiData.current.dt * 1000 + apiData.timezone_offset * 1000 - 7200000,
+                    city: city,
+                    country: country,
+                    value: apiData.current.temp
+                }
+                dbo.collection("api-data").insertOne(api_entry, function (err, res) {
+                    if (err) throw err;
+                });
+                dbo.collection("api-pred").insertOne(pred_entry, function (err, res) {
+                    if (err) throw err;
+                });
+                sendMessageToClients(JSON.stringify({type: "refresh_api"}));
+            });
+        }
+
+        async function getLocationFromCoordinates(lat,long) {
+            let locationAPIKEY = process.env.bigdatacloud_apikey
+            let url = "https://api.bigdatacloud.net/data/reverse-geocode?latitude="+lat+"&longitude=" + long + "&localityLanguage=fr&key=" + locationAPIKEY;
+            return await fetch(url).then((response) => response.json());
+        }
+
         function fetchDataForAllAPI() {
-            data.forEach((source) => {
-                let apiData;
-                getDataFromAPI(source.lat, source.long).then((res) => {
-                    apiData = res;
-                    let pred_entry = {
-                        city: source.city,
-                        pred: apiData.daily
-                    }
-                    let api_entry = {
-                        date: apiData.current.dt * 1000 + apiData.timezone_offset * 1000 - 7200000,
-                        city: source.city,
-                        country: source.country,
-                        value: apiData.current.temp
-                    }
-                    dbo.collection("api").insertOne(api_entry, function (err, res) {
-                        if (err) throw err;
-                    });
-                    dbo.collection("api-pred").insertOne(pred_entry, function (err, res) {
-                        if (err) throw err;
-                    });
-                    sendMessageToClients(JSON.stringify({type: "refresh_api"}));
-                })
-            })
+            dbo.collection("api-sources").find().toArray(function (err, result) {
+                result.forEach((source) => {
+                    getDataForSpecificAPI(source.lat,source.long,source.city,source.country)
+                });
+            });
         }
         setInterval(() => {
             fetchDataForAllAPI();
@@ -199,7 +221,7 @@ async function v0() {
                     insertLogWithUser(frTime, message.info.user, message.info.ident, "error", msg);
                 }
             } else {
-                let temp = message.status.temperature;
+                let temp = message.status.temperature.toFixed(2);
                 let localisation = message.status.loc;
                 let ident = message.info.ident;
                 let user = message.info.user
@@ -262,17 +284,22 @@ async function v0() {
                 res.json(result);
             });
         });
+        //path qui retourne les sources API du JSON
         app.get('/api/locations', function (req, res) {
-            let data = require("./public/assets/api-locations.json");
-            res.json(data);
+            dbo.collection("api-sources").find().toArray(function (err, result) {
+                if (err) throw err;
+                res.json(result);
+            });
         });
+        //path qui retourne les temperatures pour une source API OpenWeather
         app.get('/api/temp', async function (req, res) {
             let city = req.query.city;
-            dbo.collection("api").find({city: city}).sort({_id:-1}).limit(200).toArray(function (err, result) {
+            dbo.collection("api-data").find({city: city}).sort({_id:-1}).limit(200).toArray(function (err, result) {
                 if (err) throw err;
                 res.json(result.reverse());
             });
         });
+        //path qui retourne les predictions pour une source API OpenWeather
         app.get('/api/predict', async function (req, res) {
             let city = req.query.city;
             dbo.collection("api-pred").find({city: city}).sort({_id:-1}).limit(1).toArray(function (err, result) {
@@ -280,6 +307,7 @@ async function v0() {
                 res.json(result);
             });
         });
+        //path qui gère l'inscription
         app.post('/esp/registration', async function (req, res) {
             let body = req.body;
             let frTime = new Date();
@@ -306,6 +334,7 @@ async function v0() {
                 }
             }
         });
+        //path qui gère la desinscription
         app.post('/esp/cancellation', async function (req, res) {
             let body = req.body;
             let frTime = new Date();
@@ -326,6 +355,42 @@ async function v0() {
                     insertLogWithUser(frTime, user, ident, "error", "Impossible de désinscrire (<b> esp inexistant<b>)");
                     res.send("Impossible de se désinscrire ( esp inexistant )");
                 }
+            }
+        });
+        //path qui gère l'ajout ou la suppression d'une source API OpenWeather
+        app.post('/api/source', async function (req, res) {
+            let body = req.body;
+            let lat = body.lat;
+            let long = body.long;
+            // action différente selon le field action
+            if (body.action == "add") {
+                if (await dbo.collection("api-sources").countDocuments({long: long, lat: lat})) {
+                    res.send("source déjà existante");
+                } else {
+                    getLocationFromCoordinates(body.lat, body.long).then((response) => {
+                        let city = response.city || response.locality;
+                        let country = response.countryCode
+                        let api_entry = {
+                            long: parseFloat(long),
+                            lat: parseFloat(lat),
+                            city: city,
+                            country: country
+                        }
+                        dbo.collection("api-sources").insertOne(api_entry, function (err, resp) {
+                            if (err) throw err;
+                            sendMessageToClients(JSON.stringify({type: "refresh_api_sources"}));
+                            getDataForSpecificAPI(lat,long,city,country);
+                            res.send("Source ajoutée à "+city+", "+country);
+                        });
+                    })
+                }
+
+            } else if (body.action == "remove") {
+                await dbo.collection("api-sources").deleteOne({ $and: [{lat: parseFloat(lat)}, {long: parseFloat(long)}]}, function (err, resp) {
+                    if (err) throw err;
+                    sendMessageToClients(JSON.stringify({type: "remove_api_source",lat: lat,long: long}));
+                    res.send("Source supprimée");
+                })
             }
         });
 

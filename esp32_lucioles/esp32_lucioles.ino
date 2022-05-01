@@ -2,8 +2,6 @@
  * Auteur : G.Menez
  */
 
-// SPIFFS
-#include <SPIFFS.h>
 // OTA
 #include <ArduinoOTA.h>
 #include "ota.h"
@@ -20,8 +18,6 @@
 #include <HTTPClient.h>
 
 /*===== ESP GPIO configuration ==============*/
-/* ---- LED         ----*/
-const int LEDpin = 19; // LED will use GPIO pin 19
 /* ---- Light       ----*/
 const int LightPin = A5; // Read analog input on ADC1_CHANNEL_5 (GPIO 33)
 /* ---- Temperature ----*/
@@ -34,7 +30,6 @@ HTTPClient http;
 /*===== MQTT broker/server and TOPICS ========*/
 String MQTT_SERVER = "test.mosquitto.org";
 
-//int MQTT_PORT = 1883;
 int MQTT_PORT =  8883; // for TLS cf https://test.mosquitto.org/
 
 //==== MQTT Credentials =========
@@ -46,8 +41,6 @@ char *mqtt_passwd = NULL;
 
 //==== MQTT TOPICS ==============
 #define TOPIC_TEMP "iot/M1Miage2022/temp"
-#define TOPIC_MANAGEMENT "esp/seb/M1Miage2022"
-
 
 const char* CA_cert = \
 "-----BEGIN CERTIFICATE-----\n" \
@@ -133,17 +126,16 @@ const char* ESP_key= \
 WiFiClientSecure secureClient;     // Avec TLS !!!
 PubSubClient client(secureClient); // MQTT client
 
-boolean isPublishing = false;
 StaticJsonDocument<256> jdoc;
 char jpayload[256];
 
 /*============== MQTT CALLBACK ===================*/
 
 /*============== CALLBACK ===================*/
-void mqtt_pubcallback(char* topic, 
-                      byte* message, 
+void mqtt_pubcallback(char* topic,
+                      byte* message,
                       unsigned int length) {
-  /* 
+  /*
    * Callback if a message is published on this topic.
    */
   Serial.print("Message arrived on topic : ");
@@ -153,13 +145,7 @@ void mqtt_pubcallback(char* topic,
   for(int i = 0 ; i < length ; i++) {
     messageTemp += (char) message[i];
   }
-  if(messageTemp == "start"){
-    isPublishing = true;
-    Serial.println("Demarrage des publications");
-  } else if(messageTemp == "stop"){
-    isPublishing = false;
-    Serial.println("Arrêt des publications");
-  }
+  Serial.println(messageTemp);
 }
 
 
@@ -173,21 +159,6 @@ void createJsonTemp(){
   jdoc["info"]["ident"] = whoami;
   serializeJson(jdoc, jpayload);
 }
-void createJsonRegistration(){
-  jdoc.clear();
-  jdoc["user"]= "esp_Seb";
-  jdoc["ident"] = whoami;
-  jdoc["secret"] = "burger";
-  serializeJson(jdoc, jpayload);
-}
-void createJsonCancellation(boolean eraseData){
-  jdoc.clear();
-  jdoc["user"]= "esp_Seb";
-  jdoc["ident"] = whoami;
-  jdoc["secret"] = "burger";
-  jdoc["eraseData"] = eraseData;
-  serializeJson(jdoc, jpayload);
-}
 
 /*============= CONNECT and SUBSCRIBE =====================*/
 
@@ -196,14 +167,11 @@ void mqtt_connect() {
      Subscribe to a MQTT topic
   */
   // For TLS
-  const char* cacrt= readFileFromSPIFFS("/ca.crt").c_str();
   secureClient.setCACert(CA_cert);
-  const char* clcrt = readFileFromSPIFFS("/client.crt").c_str();
   secureClient.setCertificate(ESP_cert);
-  const char* clkey = readFileFromSPIFFS("/client.key").c_str();
   secureClient.setPrivateKey(ESP_key);
 
-  
+
   while (!client.connected()) { // Loop until we're reconnected
     Serial.print("Attempting MQTT connection...");
 
@@ -212,7 +180,7 @@ void mqtt_connect() {
                        mqtt_login,   /* With credential */
                        mqtt_passwd)) {
       Serial.println("connected");
-      client.subscribe(TOPIC_MANAGEMENT);
+      client.subscribe(TOPIC_TEMP);
     }
     else {
       Serial.print("failed, rc=");
@@ -225,9 +193,8 @@ void mqtt_connect() {
 }
 
 void mqtt_subscribe() {
-   if (!client.connected()) { 
+   if (!client.connected()) {
       mqtt_connect();
-      client.subscribe(TOPIC_MANAGEMENT);
    }
 }
 
@@ -251,13 +218,6 @@ float get_light(){
   return analogRead(LightPin);
 }
 
-void set_pin(int pin, int val){
- digitalWrite(pin, val) ;
-}
-
-int get_pin(int pin){
-  return digitalRead(pin);
-}
 static uint32_t tick = 0;
 
 
@@ -273,36 +233,32 @@ void setup () {
   /* Choix d'une identification pour cet ESP ---*/
   whoami =  String(WiFi.macAddress());
 
-  // Initialize the LED
-  setup_led(LEDpin, OUTPUT, LOW);
-
   // Init temperature sensor
   TempSensor.begin();
 
-  // Initialize SPIFFS
-  SPIFFS.begin(true);
-
   setup_mqtt_server();
   mqtt_connect();
-  mqtt_subscribe();   
+  mqtt_subscribe();
+  // On publie une première fois avant de rentrer dans la loop (pour éviter d'attendre 10 min)
+  createJsonTemp();
+  client.publish(TOPIC_TEMP, jpayload);
+  Serial.println(jpayload);// publish it
 }
 
 /*================= LOOP ======================*/
 
 void loop () {
 mqtt_subscribe();
-  
-int32_t period = 600000; // Publication period
 
-if(isPublishing){
+int32_t period = 300000; // Publication period
+
   if ( millis() - tick > period)
   {
     createJsonTemp();
     client.publish(TOPIC_TEMP, jpayload);
-    Serial.println(jpayload);// publish it 
+    Serial.println(jpayload);// publish it
     tick = millis();
   }
-}
 //   Process MQTT ... obligatoire une fois par loop()
-  client.loop(); 
+  client.loop();
 }

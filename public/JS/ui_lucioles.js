@@ -11,7 +11,8 @@ let ws = new WebSocket(HOST);
 
 function init() {
     new NavListeners();
-    new Modal();
+    new EspModal();
+    new ApiModal();
     let node_url = "https://iot906836m1.herokuapp.com";
     let ident_list = [];
     let esp_list = [];
@@ -55,6 +56,15 @@ function init() {
                 break;
             case "remove_esp":
                 removeEsp(msg.ident); // On supprime un esp et son marker
+                break;
+            case "refresh_api_sources":
+                getApiSourcesFromNode();
+                getApiDataFromNode(); // On récupère les températures de l'api
+                getApiSourcePred();
+                break;
+            case "remove_api_source":
+                removeApi(msg.lat,msg.long);
+                break;
         }
     };
 
@@ -72,6 +82,12 @@ function init() {
         let esp_to_remove = esp_list.find((el) => el.getIdent() == ident);
         esp_list = esp_list.filter(esp => esp.getIdent() !== ident);
         tempMap.removeLayer(esp_to_remove.getMarker()); // On supprime le marker de l'esp de la carte
+    }
+
+    function removeApi(lat,long) {
+        let api_to_remove = api_sources_list.find((el) => el.getLat() == lat && el.getLong() == long);
+        api_sources_list = api_sources_list.filter(source => (source.getLat() != lat && source.getLong() != long));
+        tempMap.removeLayer(api_to_remove.getMarker());
     }
 
     function getLastDataForEsps() {
@@ -188,6 +204,7 @@ function init() {
     }
 
     function getApiSourcesFromNode() { // On crée les différentes sources à partir du fichier JSON présent sur l'API
+        api_sources_list = [];
         $.ajax({
             url: node_url.concat("/api/locations"),
             type: 'GET',
@@ -201,6 +218,7 @@ function init() {
                     newSource.setCity(source.city);
                     api_sources_list.push(newSource);
                 })
+                addApiMarkers();
             },
             error: function (resultat, statut, erreur) {
             },

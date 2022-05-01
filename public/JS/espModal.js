@@ -1,6 +1,6 @@
 
 
-class Modal {
+class EspModal {
     constructor(){
         this.modal = document.getElementById("modal");
         this.btn = document.getElementById("sub_button");
@@ -9,31 +9,41 @@ class Modal {
         this.identInput = document.getElementById("identifiant");
         this.secretInput = document.getElementById("mot_secret");
         this.subBtn = document.getElementById("subscribe_button");
-        this.infoPanel = document.getElementById("info_message");
+        this.infoPanel = document.getElementsByClassName("info_message")[0];
         this.unsubBtn = document.getElementById("unsub_button");
+        this.modalContent = document.getElementById("esp-modal-content");
+        this.bkBtn = document.getElementsByClassName("back_button")[0];
         this.initModal();
     }
 
     initModal() {
         this.btn.addEventListener("click", () => {
+            this.modalContent.classList.remove("hidden");
             this.modal.style.display = "block";
         });
         this.closeSpan.addEventListener("click", () => {
+            this.modalContent.classList.add("hidden");
             this.modal.style.display = "none";
+            this.clearModal()
+        });
+        this.bkBtn.addEventListener("click", () => {
+            this.modalContent.classList.add("hidden");
+            this.modal.style.display = "none";
+            this.clearModal()
         });
         this.subBtn.addEventListener("click", () => {
-            if(this.AreFormValuesEmpty()){
+            if(this.areFormValuesEmpty()){
                 this.highLightEmptiesInputs();
                 this.infoPanel.innerText="Tous les champs sont obligatoires !"
-            } else if(this.AreFormValuesValid()) {
+            } else if(this.areFormValuesValid()) {
                 this.subscriptionRequest();
             }
         });
         this.unsubBtn.addEventListener("click", () => {
-            if(this.AreFormValuesEmpty()){
+            if(this.areFormValuesEmpty()){
                 this.highLightEmptiesInputs();
                 this.infoPanel.innerText="Tous les champs sont obligatoires !"
-            } else if(this.AreFormValuesValid()) {
+            } else if(this.areFormValuesValid()) {
                 this.cancellationRequest();
             }
         });
@@ -41,7 +51,7 @@ class Modal {
 
     }
 
-    AreFormValuesEmpty(){
+    areFormValuesEmpty(){
         return this.userInput.value == '' && this.identInput.value == '' && this.secretInput.value == '';
     }
 
@@ -59,7 +69,7 @@ class Modal {
         })
     }
 
-    AreFormValuesValid(){
+    areFormValuesValid(){
         let macRegexWithDelimitor = new RegExp('^([0-9a-fA-F]{2}[:.-]){5}[0-9a-fA-F]{2}$');
         let macRegexWithoutDelimitor = new RegExp('^([0-9a-fA-F]{2}[:.-]?){5}[0-9a-fA-F]{2}$')
         let userErrorContainer = document.getElementById("utilisateur-error");
@@ -81,14 +91,14 @@ class Modal {
         return valid;
     }
     subscriptionRequest(){
-        let messagePanel = document.getElementById("info_message");
+        let messagePanel = document.getElementsByClassName("info_message")[0];
         let post = {
             "user": this.userInput.value,
             "ident": this.identInput.value,
             "secret": this.secretInput.value
         }
         $.ajax({
-            url:"http://localhost:3000/esp/registration",
+            url:"https://iot906836m1.herokuapp.com/esp/registration",
             type: 'POST',
             data: post,
             headers: {Accept: "application/json",},
@@ -107,15 +117,22 @@ class Modal {
         });
     }
 
+    clearModal(){
+        this.userInput.value = "";
+        this.identInput.value = "";
+        this.secretInput.value = "";
+        this.infoPanel.innerHTML = "";
+    }
+
     cancellationRequest(){
-        let messagePanel = document.getElementById("info_message");
+        let messagePanel = document.getElementsByClassName("info_message")[0];
         let post = {
             "user": this.userInput.value,
             "ident": this.identInput.value,
             "secret": this.secretInput.value
         }
         $.ajax({
-            url: "http://localhost:3000/esp/cancellation",
+            url: "https://iot906836m1.herokuapp.com/esp/cancellation",
             type: 'POST',
             data: post,
             headers: {Accept: "application/json",},

@@ -1,5 +1,6 @@
 html {
     background: aliceblue;
+    font-family: 'Patrick Hand SC';
 }
 
 body {
@@ -9,15 +10,22 @@ body {
     user-select: none; /* Standard */
 }
 
+h1 {
+    margin-top: 0;
+}
+
 #header {
     width: 700px;
-    font-family: 'Patrick Hand SC';
     font-size: 80px;
     display: flex;
     justify-content: flex-start;
     flex-direction: row;
     color: black;
     margin: auto;
+}
+
+button {
+    font-family: 'Patrick Hand SC';
 }
 
 #header img {
@@ -44,7 +52,6 @@ body {
     display: inline-block;
     cursor: pointer;
     color: #666666;
-    font-family: 'Patrick Hand SC';
     font-size: 15px;
     font-weight: bold;
     padding: 5px 24px;
@@ -91,7 +98,6 @@ body {
     background-color: #7cb9b9;
     display: flex;
     position: absolute;
-    font-family: "Patrick Hand SC";
     font-size: 50px;
     border-radius: 2%;
     width: 100%;
@@ -106,17 +112,12 @@ body {
     display: none !important;
 }
 
-#documentation_container {
-    font-family: "Patrick Hand SC";
-}
-
 #documentation_container span {
     font-family: Verdana;
     font-size: 14px;
 }
 
 #notice {
-    font-family: "Patrick Hand SC";
     margin-bottom: 5px;
 }
 
@@ -142,7 +143,6 @@ body {
 
 .w-25 {
     width: 25%;
-    font-family: 'Patrick Hand SC';
 }
 
 #map_display {
@@ -161,7 +161,6 @@ body {
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-    font-family: "Patrick Hand SC";
     background-color: #a33208;
     color: white;
 }
@@ -187,16 +186,17 @@ body {
     width: 80px;
     height: 130px;
     text-align: center;
-    font-family: "Patrick Hand SC";
     font-size: 15px;
     border: 1px solid #81cde7;
     border-radius: 5px;
 }
 
 #container_info {
+    display: flex;
+    flex-direction: column;
     background-color: #efefc8;
     border: 1px solid #81cde7;
-    margin-top: 25px;
+    margin-top: 80px;
     border-radius: 5px;
     margin-bottom: 15px;
 }
@@ -206,10 +206,14 @@ body {
     padding-bottom: 70px;
 }
 
+#remove_api_button {
+    width: 240px;
+    margin: auto auto 12px;
+}
+
 #modal {
     display: none;
     position: fixed;
-    font-family: "Patrick Hand SC";
     z-index: 1;
     left: 0;
     top: 0;
@@ -220,7 +224,7 @@ body {
     background-color: rgba(0,0,0,0.4);
 }
 
-#modal-content {
+#esp-modal-content, #api-modal-content {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
@@ -228,6 +232,7 @@ body {
     border-radius: 7px;
     width: 60%;
     max-width: 800px;
+    min-width: 400px;
 }
 
 .close {
@@ -250,18 +255,18 @@ body {
     width: 30%;
 }
 
-#input_group {
+.input_group {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
 }
 
-#info_message {
+.info_message {
     margin: 2% 0 0 1%;
     display: flex;
     justify-content: center;
 }
-#bottom_buttons {
+.bottom_buttons {
     margin-top: 4%;
     display: flex;
     flex-direction: row;
@@ -279,4 +284,16 @@ body {
 .input-error {
     font-size: 12px;
 }
+
+#legend {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2%;
+}
+
+#legend img {
+    width: 40px;
+    height: 40px;
+}
+
 

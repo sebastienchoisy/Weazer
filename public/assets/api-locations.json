@@ -11,18 +11,6 @@
         "country": "IN"
     },
     {
-        "long": 37.6178,
-        "lat": 55.7558,
-        "city": "Moscou",
-        "country": "RU"
-    },
-    {
-        "long": -46.6339,
-        "lat": -23.5504,
-        "city": "Sao Paulo",
-        "country": "BR"
-    },
-    {
         "long": -0.1275,
         "lat": 51.5072,
         "city": "Londres",
@@ -33,12 +21,6 @@
         "lat": 40.6943,
         "city": "New York",
         "country": "US"
-    },
-    {
-        "long": 121.597366,
-        "lat": 25.105497,
-        "city": "Taipei",
-        "country": "TW"
     },
     {
         "long": 100.5167,
@@ -65,12 +47,6 @@
         "country": "SN"
     },
     {
-        "long": -13.712222,
-        "lat": 9.509167,
-        "city": "Conakry",
-        "country": "GN"
-    },
-    {
         "long": -99.133209,
         "lat": 19.432608,
         "city": "Mexico City",
@@ -89,12 +65,6 @@
         "country": "ZA"
     },
     {
-        "long": 174.777969,
-        "lat": 	-41.276825,
-        "city": "Wellington",
-        "country": "NZ"
-    },
-    {
         "long": 151.209900,
         "lat": -33.865143,
         "city": "Sydney",
@@ -111,11 +81,5 @@
         "lat": 40.416775,
         "city": "Madrid",
         "country": "ES"
-    },
-    {
-        "long": 10.757933,
-        "lat": 59.911491,
-        "city": "Oslo",
-        "country": "NO"
     }
 ]

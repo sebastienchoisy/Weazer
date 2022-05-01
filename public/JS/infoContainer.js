@@ -2,6 +2,7 @@ class InfoContainer { // On prépare les données qui vont être affichées au c
     constructor() {
         this.dataSource = undefined;
         this.chart = new TempChart();  // la charte affichée dans le container
+        this.initRemoveButton();
     }
 
     // Si la charte est déjà en place, on la met à jour avec les nouvelles données, sinon on l'initialise avec ces mêmes données
@@ -15,6 +16,13 @@ class InfoContainer { // On prépare les données qui vont être affichées au c
         }
         this.refreshData();
 
+    }
+
+    initRemoveButton() {
+        let btn = document.getElementById("remove_api_button");
+        btn.addEventListener("click", () => {
+            this.removeSelectedDataSource();
+        });
     }
     // On actualise les données avec celles de la source sélectionnée
     setInfo() {
@@ -57,8 +65,37 @@ class InfoContainer { // On prépare les données qui vont être affichées au c
                     "<span> max: " + this.dataSource.getPred()[i].temp.max + " °C</span>"
             }
             document.getElementById("pred").classList.remove("hidden");
+            document.getElementById("remove_api_button")
         } else {
             document.getElementById("pred").classList.add("hidden");
         }
     }
+
+    removeSelectedDataSource(){
+        let marker_info = document.getElementById("marker_info");
+        let post = {
+            "lat": this.dataSource.getLat(),
+            "long": this.dataSource.getLong(),
+            "action": "remove"
+        }
+        $.ajax({
+            url:"https://iot906836m1.herokuapp.com/api/source",
+            type: 'POST',
+            data: post,
+            headers: {Accept: "application/json",},
+            success: function (resultat) {
+                if(resultat == "Source supprimée"){
+                    marker_info.classList.add("hidden");
+                }
+            },
+        });
+
+    }
+
+    setRemoveButton() {
+        let btn = document.getElementById("remove_api_button");
+        this.dataSource.getType() == "api"? btn.classList.remove("hidden"): btn.classList.add("hidden");
+
+    }
+
 }

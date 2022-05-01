@@ -38,6 +38,14 @@ class dataSource {
         return this.city;
     }
 
+    getLat() {
+        return this.lastLatitude;
+    }
+
+    getLong() {
+        return this.lastLongitude;
+    }
+
     getCountry() {
         return this.country;
     }
@@ -93,6 +101,7 @@ class dataSource {
             infoContainer.setDataSource(this);
             infoContainer.setInfo();
             infoContainer.setPredict();
+            infoContainer.setRemoveButton();
             document.getElementById("marker_info").classList.remove("hidden");
         })
     }

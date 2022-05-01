@@ -45,7 +45,6 @@ void connect_wifi(){
  delay(100); // ms
 
  Serial.println(String("\nAttempting to connect to SSIDs : "));
- wifiMulti.addAP("Freebox-9903E7", "choisychoisy1964");
  wifiMulti.addAP("HUAWEI-6EC2", "FGY9MLBL");
  wifiMulti.addAP("HUAWEI-553A", "QTM06RTT");
  wifiMulti.addAP("GMAP", "vijx47050");

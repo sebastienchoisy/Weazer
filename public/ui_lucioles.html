@@ -22,11 +22,11 @@
 </head>
 <body>
 <div id="modal">
-    <div id="modal-content">
+    <div id="esp-modal-content" class="hidden">
         <span class="close">&times;</span>
         <h1> Inscription/Désinscription </h1>
-        <div id="sub_form">
-            <div id="input_group">
+        <div class="sub_form">
+            <div class="input_group">
                 <div class="input">
                     <label for="utilisateur"> Utilisateur</label>
                     <input type="text" id="utilisateur">
@@ -43,10 +43,34 @@
                     <span id="secret-error" class="red-text input-error"></span>
                 </div>
             </div>
-            <div id="info_message"></div>
-            <div id="bottom_buttons">
+            <div class="info_message"></div>
+            <div class="bottom_buttons">
                 <button type="button" id="subscribe_button" class="n-button"> S'inscrire</button>
                 <button type="button" id="unsub_button" class="n-button"> Se désinscrire</button>
+                <button type="button" class="back_button n-button"> Retour</button>
+            </div>
+        </div>
+    </div>
+    <div id="api-modal-content" class="hidden">
+        <span class="close">&times;</span>
+        <h1> Ajouter une source OpenWeather </h1>
+        <div class="sub_form">
+            <div class="input_group">
+                <div class="input">
+                    <label for="latitude"> Latitude </label>
+                    <input type="text" id="latitude">
+                    <span id="latitude-error" class="red-text"></span>
+                </div>
+                <div class="input">
+                    <label for="longitude"> Longitude </label>
+                    <input type="text" id="longitude">
+                    <span id="longitude-error" class="red-text"></span>
+                </div>
+            </div>
+            <div class="info_message"></div>
+            <div class="bottom_buttons">
+                <button type="button" id="add_button" class="n-button"> Ajouter </button>
+                <button type="button" class="back_button n-button"> Retour </button>
             </div>
         </div>
     </div>
@@ -59,7 +83,8 @@
 <div id="navigation">
     <button type="button" id="map_button" class="n-button"> Carte</button>
     <button type="button" id="doc_button" class="n-button"> Documentation</button>
-    <button type="button" id="sub_button" class="n-button"> Inscription/Désinscription</button>
+    <button type="button" id="sub_button" class="n-button"> Inscription/Désinscription (ESP)</button>
+    <button type="button" id="add_api_button" class="n-button"> Ajouter une source OpenWeather</button>
     <button type="button" id="logs_button" class="n-button"> Logs</button>
 </div>
 <div id="container">
@@ -67,6 +92,10 @@
         <div id="map_display">
             <div id="notice">
                 <span>Cliquez sur les marqueurs pour voir plus d'information (localisation, température, graphiques, etc..).</span>
+            </div>
+            <div id="legend">
+                <img src="assets/api-icon-marker.png" alt="api-icon" width="40" height="40"><span>Capteurs de température </span>
+                <img src="assets/esp-icon-marker.png" alt="esp-icon" width="40" height="40"><span> Sources API OpenWeather </span>
             </div>
             <div id="map"></div>
             <div id="loading-screen"><img src="assets/gif-spinner.svg" alt=""><span>Chargement des données</span></div>
@@ -84,7 +113,6 @@
                         <div class="w-25"><span>Plus haute temperature: <br></span><span id="h-temp"></span></div>
                         <div class="w-25"><span>Plus basse temperature: <br></span><span id="l-temp"></span></div>
                     </div>
-                    <div class="info-display"></div>
                 </div>
                 <div id="pred" class="hidden">
                     <div class="predDay"></div>
@@ -95,6 +123,7 @@
                     <div class="predDay"></div>
                     <div class="predDay"></div>
                 </div>
+                <button id="remove_api_button" class="n-button hidden"> Supprimer source OpenWeather</button>
             </div>
             <div id="chart"></div>
         </div>
@@ -102,30 +131,31 @@
     <div id="documentation_container">
         <h1>Documentation</h1>
         <span id="github"> Code source: <a href="https://github.com/sebastienchoisy/Weazer" target="_blank"><b>https://github.com/sebastienchoisy/Weazer</b></a><br></span>
-        <span>L'inscription et la désinscription se font sous forme de requête HTTP POST pour que le mot secret ne soit pas divulguer publiquement sur un topic MQTT.</span>
-        <h3>Inscription</h3>
-        <span>Pour envoyer vos données à l'application avec votre ESP, il faut tout d'abord s'inscrire à l'aide d'une requête http <b>POST</b> vers l'API présente sur cette URL:
-        <b>https://www.iot906836m1.herokuapp.com/esp/registration</b>, avec un JSON sous cette forme : <br></span>
-        <img src="assets/registrationJson.jpg" alt="inscription-json">
-        <span><br>Les 3 champs sont obligatoires, le <b>mot secret</b> correspond à un mot que vous devrez nous transmettre si vous souhaitez vous désinscrire par la suite,
+        <span> Il a deux types de capteurs de températures sur cette application, les capteurs ESP et les capteurs provenant de l'api OpenWeather.
+        Voici donc comment gérer ces deux types de capteurs :</span>
+        <h3> Capteur ESP</h3>
+        <h4> Inscription/Désinscription</h4>
+        <span>Avant de diffuser les données de votre ESP sur le topic MQTT , vous devez l'inscrire grâce au bouton présent dans la navigation. Vous pouvez également vous
+            désinscrire si nécessaire. <br><br>Il faudra vous réinscrire si vous comptez réafficher vos données sur l'application un jour.<br> En cas de désinscription, les données relatives à votre ESP
+            sont toutefois conservés dans la base de données<br></span>
+        <span><br>Les 3 champs, lors de l'inscription ou la désinscription sont obligatoires, le <b>mot secret</b> correspond à un mot que vous devrez nous transmettre si vous souhaitez vous désinscrire par la suite,
         afin d'éviter que n'importe qui puisse vous désinscrire.</span>
 
-        <h3> Envoie de données</h3>
-        <span> Une fois, l'inscription réalisée (confirmation par réponse HTTP ou sur les logs), votre marker apparaitra que lorsque vous aurez envoyé votre température au serveur en utilisant cette fois, le topic <b>iot/M1Miage2022/temp</b>
-        présent sur le broker <b>test.mosquitto.org</b> et en les envoyant sous un Json de cette forme, de préférence, toutes les <b>5 minutes</b> : <br>
+        <h4> Envoie de données</h4>
+        <span> Une fois, l'inscription réalisée, votre marker apparaitra que lorsque vous aurez envoyé votre température au serveur en utilisant cette fois, le topic <b>iot/M1Miage2022/temp</b>
+        présent sur le broker <b>test.mosquitto.org</b> et en les envoyant sous un Json de cette forme, de préférence, toutes les <b>5 minutes</b> : <br><br>
       </span>
         <img src="assets/tempJson.jpg" alt="temp-json">
         <span><br>Les champs <b>user</b> et <b>light</b> sont optionnels, les autres sont tous obligatoires !</span>
 
-        <h3>Désinscription</h3>
-        <span>Si vous le souhaitez, vous avez la possibilité de vous désinscrire, une fois désinscrit, vous ne pourrez plus envoyer des données, cependant nous garderons
-            les anciennes données sauf si vous souhaitez que nous les effacions. L'url pour vous désinscrire avec une requête http <b>POST</b> : https://www.iot906836m1.herokuapp.com/esp/cancellation <br></span>
-        <img src="assets/cancellationJson.jpg" alt="temp-json">
-        <span><br>Tous les champs sont obligatoires, sauf eraseData, qui vous permet de supprimer les anciennes données à la désinscription, si eraseData est true, alors
-      les anciennes données seront supprimées et vous devrez refournir des données à une éventuelle réinscription</span>
+        <h3>Capteur OpenWeather</h3>
+        <span>Si vous le souhaitez, vous avez la possibilité d'ajouter vos propres sources OpenWeather grâce au bouton prévu à cet effet dans la navigation. Il vous suffit de fournir une longitude et une latitude.<br>
+            Votre source devrait apparaitre instantanément sur la carte, et sa température sera relevée toutes les 30 minutes au maximum.<br>
+        Pour supprimer une source OpenWeather, vous trouverez un bouton dans le panel d'informations, une fois avoir cliqué sur le marqueur de la source en question. </span>
+        <span>
 
         <h3> Logs</h3>
-        <span> En cas de problèmes pour s'inscrire ou envoyer des données, il est possible de consulter les logs dans la partie prévue à cet effet.</span>
+        <span> En cas de problèmes, il est possible de consulter les logs dans la partie prévue à cet effet.</span>
     </div>
     <div id="logs_container"></div>
 </div>
@@ -135,7 +165,8 @@
 <script src="JS/map.js"></script>
 <script src="JS/navListeners.js"></script>
 <script src="JS/tempChart.js"></script>
-<script src="JS/modal.js"></script>
+<script src="JS/espModal.js"></script>
+<script src="JS/apiModal.js"></script>
 <script src="JS/ui_lucioles.js"></script>
 
 
